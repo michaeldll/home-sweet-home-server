@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Home sweet Home - Websocket Server</title>
+		<style>
+			body.clicked {
+				background-color: #f9d586;
+			}
+		</style>
+	</head>
+
+	<body>
+		<p>Client time :</p>
+
+		<div id="client-time"></div>
+
+		<p>Server time :</p>
+
+		<div id="server-time">waiting for connection</div>
+
+		<p>Gyroscope Y :</p>
+
+		<div id="acceleration">waiting for connection</div>
+
+		<script>
+			/**
+			 * Client Time
+			 */
+			const getClientTime = now => {
+				const hours = now.getHours();
+				const minutes = now.getMinutes();
+				const seconds = now.getSeconds();
+				const milliseconds = now.getMilliseconds();
+
+				const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+
+				return dateString;
+			};
+			setInterval(() => {
+				document.querySelector('#client-time').innerText = getClientTime(new Date());
+			}, 1);
+
+			/**
+			 * Websockets
+			 */
+			const HOST = location.origin.replace(/^http/, 'ws');
+			const ws = new WebSocket(HOST);
+			let el;
+
+			ws.onmessage = event => {
+				el = document.querySelector('#server-time');
+				el.innerHTML = event.data;
+			};
+		</script>
+	</body>
+</html>
