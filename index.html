@@ -101,7 +101,6 @@
 						break;
 
 					case 'beta-server':
-						console.log(value);
 						node = document.querySelector('#server-beta');
 						if (node) node.innerHTML = value;
 						break;
@@ -112,7 +111,6 @@
 			};
 
 			const sendBetaValue = value => {
-				// console.log(value);
 				const message = { type: 'beta', message: value.toString() };
 				const string = JSON.stringify(message);
 				ws.send(string);
@@ -173,14 +171,12 @@
 			ws.onmessage = event => {
 				const data = JSON.parse(event.data);
 
-				console.log(data);
-
 				switch (data.type) {
 					case 'time':
-						setNode(data.message, 'time-server');
+						setNode('time-server', data.message);
 						break;
 					case 'beta':
-						setNode(data.message, 'beta-server');
+						setNode('beta-server', data.message);
 						break;
 
 					default:
