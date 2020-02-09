@@ -19,7 +19,7 @@ const debug = false;
 
 wss.on('connection', ws => {
 	console.log('Client connected');
-	ws.on('beta', data => {
+	ws.on('message', data => {
 		wss.clients.forEach(client => {
 			client.send(data);
 		});
