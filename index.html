@@ -11,41 +11,66 @@
 			p.bold {
 				font-weight: bold;
 			}
+			.dialog {
+				width: 50px;
+			}
+			.dialog .content {
+				display: none;
+				width: 100vw;
+			}
+			.dialog:hover .content {
+				display: block;
+			}
 		</style>
 	</head>
 
 	<body>
-		<p>Client time :</p>
+		<h2 class="bold">Client time :</h2>
 
 		<div id="client-time">waiting for javascript</div>
 
-		<p>Server time :</p>
+		<h2 class="bold">Server time :</h2>
 
 		<div id="server-time">waiting for connection</div>
 
-		<p>Device X (beta):</p>
+		<h2 class="bold">
+			<span>Device Beta:</span>
+			<span class="dialog">
+				<button>?</button>
+				<div class="content">
+					<p class="small">
+						Represents the front to back motion of the device, around the x axis. <br />
+						In degrees with values ranging from -180 to 180. <br />
+					</p>
 
-		<p class="small">
-			Represents the motion of the device around the x axis. Represented in degrees with values ranging from -180
-			to 180. This represents a front to back motion of the device.
-		</p>
-
-		<p class="small bold">
-			Only works on devices emitting the "deviceorientation" event. E.g smartphones
-		</p>
+					<p class="small bold">
+						Only works on devices emitting the "deviceorientation" event, like smartphones.
+					</p>
+				</div>
+			</span>
+		</h2>
 
 		<div id="device-beta">waiting for device event</div>
 
-		<p>Server X (beta:</p>
+		<h2>Server Beta:</h2>
 
 		<div id="server-beta">waiting for connection</div>
 
 		<script>
-			let betaValue = 0;
+			/* ------------------------------------------- */
+			/* Vars : */
+			/* ------------------------------------------- */
 
-			/**
-			 * Client Time
-			 */
+			const HOST = location.origin.replace(/^http/, 'ws');
+			const ws = new WebSocket(HOST);
+
+			let betaValue = 0;
+			let connected = false;
+
+			/* ------------------------------------------- */
+			/* Functions : */
+			/* ------------------------------------------- */
+
 			const getClientTime = now => {
 				const hours = now.getHours();
 				const minutes = now.getMinutes();
@@ -62,13 +87,16 @@
 				node.innerText = value;
 			};
 
-			setInterval(() => {
-				setTimeNode(getClientTime(new Date()));
-			}, 1);
+			const setDOMServerTime = value => {
+				const el = document.querySelector('#server-time');
+				el.innerHTML = value;
+			};
 
-			/**
-			 * Device orientation
-			 */
+			const sendBetaValue = value => {
+				const message = { type: 'beta', message: betaValue };
+				const string = JSON.stringify(message);
+				ws.send(string);
+			};
 
 			const setBetaNode = value => {
 				const node = document.querySelector('#device-beta');
@@ -77,7 +105,7 @@
 
 			const handleOrientation = event => {
 				/*
-					Absolute is true if the orientation data in instanceOfDeviceOrientationEvent is provided as the difference between the Earth's coordinate frame and the device's coordinate frame, or false if the orientation data is being provided in reference to some arbitrary, device-determined coordinate frame.
+					Absolute: is true if the orientation data in instanceOfDeviceOrientationEvent is provided as the difference between the Earth's coordinate frame and the device's coordinate frame, or false if the orientation data is being provided in reference to some arbitrary, device-determined coordinate frame.
 				*/
 
 				/*
@@ -98,29 +126,33 @@
 				*/
 				betaValue = event.beta;
 				setBetaNode(betaValue);
+				if (connected) sendBetaValue(betaValue);
 			};
+
+			/* ------------------------------------------- */
+			/* Logic : */
+			/* ------------------------------------------- */
+
+			/**
+			 * Set client Time
+			 */
+
+			setInterval(() => {
+				setTimeNode(getClientTime(new Date()));
+			}, 1);
+
+			/**
+			 * Handle device orientation
+			 */
 
 			window.addEventListener('deviceorientation', handleOrientation, true);
 
 			/**
-			 * Websockets
+			 * Handle Websockets
 			 */
-			const HOST = location.origin.replace(/^http/, 'ws');
-			const ws = new WebSocket(HOST);
-
-			const setDOMServerTime = value => {
-				const el = document.querySelector('#server-time');
-				el.innerHTML = value;
-			};
-
-			const sendBetaValue = value => {
-				const message = { type: 'beta', message: betaValue };
-				const string = JSON.stringify(message);
-				ws.send(string);
-			};
 
 			ws.onopen = event => {
-				sendBetaValue(betaValue);
+				connected = true;
 			};
 
 			ws.onmessage = event => {
