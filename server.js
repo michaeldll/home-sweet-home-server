@@ -33,7 +33,8 @@ setInterval(() => {
 		const milliseconds = now.getMilliseconds();
 
 		const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+		const message = { type: 'date', message: dateString };
 
-		client.send(dateString);
+		client.send(message);
 	});
 }, 1);

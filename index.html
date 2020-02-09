@@ -5,9 +5,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title>Home sweet Home - Websockets Server</title>
 		<style>
-			body.clicked {
-				background-color: #f9d586;
-			}
 			p.small {
 				font-size: 0.8rem;
 			}
@@ -20,7 +17,7 @@
 	<body>
 		<p>Client time :</p>
 
-		<div id="client-time"></div>
+		<div id="client-time">waiting for javascript</div>
 
 		<p>Server time :</p>
 
@@ -35,7 +32,11 @@
 			Only works on devices emitting the "deviceorientation" event. E.g smartphones
 		</p>
 
-		<div id="device-beta">waiting for connection</div>
+		<div id="device-beta">waiting for device event</div>
+
+		<p>Server X (beta:</p>
+
+		<div id="server-beta">waiting for connection</div>
 
 		<script>
 			/**
@@ -101,6 +102,7 @@
 			let el;
 
 			ws.onmessage = event => {
+				console.log(event);
 				el = document.querySelector('#server-time');
 				el.innerHTML = event.data;
 			};
