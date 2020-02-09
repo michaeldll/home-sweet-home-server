@@ -82,33 +82,27 @@
 				return dateString;
 			};
 
-			const setTimeNode = (value, origin) => {
+			const setNode = (origin, value) => {
+				let node;
 				switch (origin) {
-					case 'client':
-						const node = document.querySelector('#client-time');
-						node.innerText = value;
+					case 'time-client':
+						node = document.querySelector('#client-time');
+						if (node) node.innerText = value;
 						break;
 
-					case 'server':
-						const node = document.querySelector('#server-time');
-						node.innerText = value;
+					case 'time-server':
+						node = document.querySelector('#server-time');
+						if (node) node.innerText = value;
 						break;
 
-					default:
-						break;
-				}
-			};
-
-			const setBetaNode = (value, origin) => {
-				switch (origin) {
-					case 'client':
-						const node = document.querySelector('#device-beta');
-						node.innerHTML = value;
+					case 'beta-client':
+						node = document.querySelector('#device-beta');
+						if (node) node.innerHTML = value;
 						break;
 
-					case 'server':
-						const node = document.querySelector('#server-beta');
-						node.innerHTML = value;
+					case 'beta-server':
+						node = document.querySelector('#server-beta');
+						if (node) node.innerHTML = value;
 						break;
 
 					default:
@@ -158,7 +152,7 @@
 			 */
 
 			setInterval(() => {
-				setTimeNode(getClientTime(new Date()));
+				setNode('time-client', getClientTime(new Date()));
 			}, 1);
 
 			/**
@@ -179,11 +173,11 @@
 				const data = JSON.parse(event.data);
 
 				switch (data.type) {
-					case 'date':
-						setTimeNode(data.message, 'server');
+					case 'time':
+						setNode(data.message, 'time-server');
 						break;
 					case 'beta':
-						setBetaNode(data.message, 'server');
+						setNode(data.message, 'beta-server');
 						break;
 
 					default:

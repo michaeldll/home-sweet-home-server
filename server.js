@@ -38,7 +38,7 @@ if (debug)
 			const milliseconds = now.getMilliseconds();
 
 			const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
-			const message = { type: 'date', message: dateString };
+			const message = { type: 'time', message: dateString };
 			const string = JSON.stringify(message);
 
 			client.send(string);
