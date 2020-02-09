@@ -173,6 +173,8 @@
 			ws.onmessage = event => {
 				const data = JSON.parse(event.data);
 
+				console.log(data);
+
 				switch (data.type) {
 					case 'time':
 						setNode(data.message, 'time-server');
