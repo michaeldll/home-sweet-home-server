@@ -93,7 +93,8 @@
 			};
 
 			const sendBetaValue = value => {
-				const message = { type: 'beta', message: betaValue };
+				console.log(value);
+				const message = { type: 'beta', message: value.toString() };
 				const string = JSON.stringify(message);
 				ws.send(string);
 			};
