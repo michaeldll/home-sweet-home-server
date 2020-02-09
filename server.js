@@ -15,7 +15,7 @@ const server = express()
 const { Server } = require('ws');
 const wss = new Server({ server });
 
-const debug = false;
+const time = false;
 
 wss.on('connection', ws => {
 	console.log('Client connected');
@@ -27,7 +27,7 @@ wss.on('connection', ws => {
 	ws.on('close', () => console.log('Client disconnected'));
 });
 
-if (debug)
+if (time)
 	setInterval(() => {
 		wss.clients.forEach(client => {
 			const now = new Date();

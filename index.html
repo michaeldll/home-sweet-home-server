@@ -5,6 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title>Home sweet Home - Websockets Server</title>
 		<style>
+			.hide {
+				display: none;
+			}
 			p.small {
 				font-size: 0.8rem;
 			}
@@ -25,13 +28,13 @@
 	</head>
 
 	<body>
-		<h2 class="bold">Client time :</h2>
+		<h2 class="time bold">Client time :</h2>
 
-		<div id="client-time">waiting for javascript</div>
+		<div id="client-time" class="time">waiting for javascript</div>
 
-		<h2 class="bold">Server time :</h2>
+		<h2 class="time bold" class="time">Server time :</h2>
 
-		<div id="server-time">waiting for connection</div>
+		<div id="server-time" class="time">waiting for connection</div>
 
 		<h2 class="bold">
 			<span>Device Beta:</span>
@@ -61,6 +64,8 @@
 			/* Vars : */
 			/* ------------------------------------------- */
 
+			const time = false;
+
 			const HOST = location.origin.replace(/^http/, 'ws');
 			const ws = new WebSocket(HOST);
 
@@ -84,30 +89,29 @@
 
 			const setNode = (origin, value) => {
 				let node;
+
 				switch (origin) {
 					case 'time-client':
 						node = document.querySelector('#client-time');
-						if (node) node.innerText = value;
 						break;
 
 					case 'time-server':
 						node = document.querySelector('#server-time');
-						if (node) node.innerText = value;
 						break;
 
 					case 'beta-client':
 						node = document.querySelector('#device-beta');
-						if (node) node.innerHTML = value;
 						break;
 
 					case 'beta-server':
 						node = document.querySelector('#server-beta');
-						if (node) node.innerHTML = value;
 						break;
 
 					default:
 						break;
 				}
+
+				if (node) node.innerText = value;
 			};
 
 			const sendBetaValue = value => {
@@ -147,12 +151,14 @@
 			/* ------------------------------------------- */
 
 			/**
-			 * Set client Time
+			 * Client and server time, mainly for debug purposes
 			 */
 
-			setInterval(() => {
-				setNode('time-client', getClientTime(new Date()));
-			}, 1);
+			if (time)
+				setInterval(() => {
+					setNode('time-client', getClientTime(new Date()));
+				}, 1);
+			else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'));
 
 			/**
 			 * Handle device orientation
@@ -161,7 +167,7 @@
 			window.addEventListener('deviceorientation', handleOrientation, true);
 
 			/**
-			 * Handle Websockets
+			 * Websockets communication
 			 */
 
 			ws.onopen = event => {
