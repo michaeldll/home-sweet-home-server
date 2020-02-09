@@ -34,7 +34,8 @@ setInterval(() => {
 
 		const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
 		const message = { type: 'date', message: dateString };
+		const string = JSON.stringify(message);
 
-		client.send(message);
+		client.send(string);
 	});
 }, 1);
