@@ -101,10 +101,22 @@
 			const ws = new WebSocket(HOST);
 			let el;
 
-			ws.onmessage = event => {
-				console.log(event);
+			const setDOMServerTime = value => {
 				el = document.querySelector('#server-time');
-				el.innerHTML = event.data;
+				el.innerHTML = value;
+			};
+
+			ws.onmessage = event => {
+				const data = JSON.parse(event.data);
+
+				switch (data.type) {
+					case 'date':
+						setDOMServerTime(data.message);
+						break;
+
+					default:
+						break;
+				}
 			};
 		</script>
 	</body>
