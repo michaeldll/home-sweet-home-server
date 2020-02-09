@@ -82,14 +82,38 @@
 				return dateString;
 			};
 
-			const setTimeNode = value => {
-				const node = document.querySelector('#client-time');
-				node.innerText = value;
+			const setTimeNode = (value, origin) => {
+				switch (origin) {
+					case 'client':
+						const node = document.querySelector('#client-time');
+						node.innerText = value;
+						break;
+
+					case 'server':
+						const node = document.querySelector('#server-time');
+						node.innerText = value;
+						break;
+
+					default:
+						break;
+				}
 			};
 
-			const setDOMServerTime = value => {
-				const el = document.querySelector('#server-time');
-				el.innerHTML = value;
+			const setBetaNode = (value, origin) => {
+				switch (origin) {
+					case 'client':
+						const node = document.querySelector('#device-beta');
+						node.innerHTML = value;
+						break;
+
+					case 'server':
+						const node = document.querySelector('#server-beta');
+						node.innerHTML = value;
+						break;
+
+					default:
+						break;
+				}
 			};
 
 			const sendBetaValue = value => {
@@ -97,11 +121,6 @@
 				const message = { type: 'beta', message: value.toString() };
 				const string = JSON.stringify(message);
 				ws.send(string);
-			};
-
-			const setBetaNode = value => {
-				const node = document.querySelector('#device-beta');
-				node.innerHTML = value;
 			};
 
 			const handleOrientation = event => {
@@ -115,18 +134,18 @@
 				*/
 
 				/*
-					Beta: represents the motion of the device around the x axis. 
-					Represented in degrees with values ranging from -180 to 180. 
+					Beta: represents the motion of the device around the x axis.
+					Represented in degrees with values ranging from -180 to 180.
 					This represents a front to back motion of the device.
 				*/
 
 				/*
-					Gamma: represents the motion of the device around the y axis. 
-					Represented in degrees with values ranging from -90 to 90. 
+					Gamma: represents the motion of the device around the y axis.
+					Represented in degrees with values ranging from -90 to 90.
 					This represents a left to right motion of the device.
 				*/
 				betaValue = event.beta;
-				setBetaNode(betaValue);
+				setBetaNode(betaValue, 'client');
 				if (connected) sendBetaValue(betaValue);
 			};
 
@@ -161,10 +180,10 @@
 
 				switch (data.type) {
 					case 'date':
-						setDOMServerTime(data.message);
+						setTimeNode(data.message, 'server');
 						break;
 					case 'beta':
-						setBetaNode(data.message);
+						setBetaNode(data.message, 'server');
 						break;
 
 					default:
