@@ -24,10 +24,12 @@
 		<div id="server-time">waiting for connection</div>
 
 		<p>Device X (beta):</p>
+
 		<p class="small">
 			Represents the motion of the device around the x axis. Represented in degrees with values ranging from -180
 			to 180. This represents a front to back motion of the device.
 		</p>
+
 		<p class="small bold">
 			Only works on devices emitting the "deviceorientation" event. E.g smartphones
 		</p>
@@ -39,6 +41,8 @@
 		<div id="server-beta">waiting for connection</div>
 
 		<script>
+			let betaValue = 0;
+
 			/**
 			 * Client Time
 			 */
@@ -53,43 +57,47 @@
 				return dateString;
 			};
 
+			const setTimeNode = value => {
+				const node = document.querySelector('#client-time');
+				node.innerText = value;
+			};
+
 			setInterval(() => {
-				document.querySelector('#client-time').innerText = getClientTime(new Date());
+				setTimeNode(getClientTime(new Date()));
 			}, 1);
 
 			/**
 			 * Device orientation
 			 */
 
-			const handleOrientation = e => {
+			const setBetaNode = value => {
+				const node = document.querySelector('#device-beta');
+				node.innerHTML = value;
+			};
+
+			const handleOrientation = event => {
 				/*
 					Absolute is true if the orientation data in instanceOfDeviceOrientationEvent is provided as the difference between the Earth's coordinate frame and the device's coordinate frame, or false if the orientation data is being provided in reference to some arbitrary, device-determined coordinate frame.
 				*/
-				// const absolute = event.absolute;
+
 				/*
 					Alpha: represents the motion of the device around the z axis.
 					Represented in degrees with values ranging from 0 to 360.
 				*/
-				// const alpha = event.alpha;
+
 				/*
 					Beta: represents the motion of the device around the x axis. 
 					Represented in degrees with values ranging from -180 to 180. 
 					This represents a front to back motion of the device.
 				*/
-				const beta = event.beta;
+
 				/*
 					Gamma: represents the motion of the device around the y axis. 
 					Represented in degrees with values ranging from -90 to 90. 
 					This represents a left to right motion of the device.
 				*/
-				// const gamma = event.gamma;
-
-				const setBetaNode = b => {
-					const betaNode = document.querySelector('#device-beta');
-					betaNode.innerHTML = b;
-				};
-
-				setBetaNode(beta);
+				betaValue = event.beta;
+				setBetaNode(betaValue);
 			};
 
 			window.addEventListener('deviceorientation', handleOrientation, true);
@@ -99,11 +107,20 @@
 			 */
 			const HOST = location.origin.replace(/^http/, 'ws');
 			const ws = new WebSocket(HOST);
-			let el;
 
 			const setDOMServerTime = value => {
-				el = document.querySelector('#server-time');
+				const el = document.querySelector('#server-time');
 				el.innerHTML = value;
+			};
+
+			const sendBetaValue = value => {
+				const message = { type: 'beta', message: betaValue };
+				const string = JSON.stringify(message);
+				ws.send(string);
+			};
+
+			ws.onopen = event => {
+				sendBetaValue(betaValue);
 			};
 
 			ws.onmessage = event => {
@@ -112,6 +129,9 @@
 				switch (data.type) {
 					case 'date':
 						setDOMServerTime(data.message);
+						break;
+					case 'beta':
+						console.log(data);
 						break;
 
 					default:

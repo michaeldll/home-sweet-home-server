@@ -15,27 +15,32 @@ const server = express()
 const { Server } = require('ws');
 const wss = new Server({ server });
 
+const debug = false;
+
 wss.on('connection', ws => {
 	console.log('Client connected');
 	ws.on('beta', data => {
-		console.log(data);
+		wss.clients.forEach(client => {
+			client.send(data);
+		});
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
 
-setInterval(() => {
-	wss.clients.forEach(client => {
-		const now = new Date();
+if (debug)
+	setInterval(() => {
+		wss.clients.forEach(client => {
+			const now = new Date();
 
-		const hours = now.getHours();
-		const minutes = now.getMinutes();
-		const seconds = now.getSeconds();
-		const milliseconds = now.getMilliseconds();
+			const hours = now.getHours();
+			const minutes = now.getMinutes();
+			const seconds = now.getSeconds();
+			const milliseconds = now.getMilliseconds();
 
-		const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
-		const message = { type: 'date', message: dateString };
-		const string = JSON.stringify(message);
+			const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+			const message = { type: 'date', message: dateString };
+			const string = JSON.stringify(message);
 
-		client.send(string);
-	});
-}, 1);
+			client.send(string);
+		});
+	}, 1);
