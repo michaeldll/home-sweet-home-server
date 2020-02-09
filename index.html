@@ -139,7 +139,7 @@
 					This represents a left to right motion of the device.
 				*/
 				betaValue = event.beta;
-				setBetaNode(betaValue, 'client');
+				setNode('beta-client', betaValue);
 				if (connected) sendBetaValue(betaValue);
 			};
 
