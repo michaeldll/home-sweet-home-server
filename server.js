@@ -21,14 +21,14 @@ let seconds = new Date().getSeconds();
 wss.on('connection', ws => {
 	console.log('Client connected');
 	ws.on('message', data => {
-		//send a message every second
-		if (seconds !== new Date().getSeconds()) {
-			wss.clients.forEach(client => {
-				client.send(data);
-			});
-		}
+		//uncomment to send a message every second instead of every tick
+		// if (seconds !== new Date().getSeconds()) {
+		wss.clients.forEach(client => {
+			client.send(data);
+		});
+		// }
 
-		seconds = new Date().getSeconds();
+		// seconds = new Date().getSeconds();
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
