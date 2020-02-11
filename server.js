@@ -20,9 +20,11 @@ const time = false;
 wss.on('connection', ws => {
 	console.log('Client connected');
 	ws.on('message', data => {
-		wss.clients.forEach(client => {
-			client.send(data);
-		});
+		setInterval(() => {
+			wss.clients.forEach(client => {
+				client.send(data);
+			});
+		}, 1000);
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });

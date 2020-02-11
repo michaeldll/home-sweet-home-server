@@ -19,7 +19,7 @@
 			}
 			.dialog .content {
 				display: none;
-				width: 100vw;
+				width: 90vw;
 			}
 			.dialog:hover .content {
 				display: block;
@@ -60,21 +60,12 @@
 		<div id="server-beta">waiting for connection</div>
 
 		<script>
-			/* ------------------------------------------- */
-			/* Vars : */
-			/* ------------------------------------------- */
-
-			const time = false;
-
+			const TIME = false;
 			const HOST = location.origin.replace(/^http/, 'ws');
 			const ws = new WebSocket(HOST);
 
 			let betaValue = 0;
 			let connected = false;
-
-			/* ------------------------------------------- */
-			/* Functions : */
-			/* ------------------------------------------- */
 
 			const getClientTime = now => {
 				const hours = now.getHours();
@@ -146,15 +137,11 @@
 				if (connected) sendBetaValue(betaValue);
 			};
 
-			/* ------------------------------------------- */
-			/* Logic : */
-			/* ------------------------------------------- */
-
 			/**
 			 * Client and server time, mainly for debug purposes
 			 */
 
-			if (time)
+			if (TIME)
 				setInterval(() => {
 					setNode('time-client', getClientTime(new Date()));
 				}, 1);
