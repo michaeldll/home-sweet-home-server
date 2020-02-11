@@ -16,15 +16,19 @@ const { Server } = require('ws');
 const wss = new Server({ server });
 
 const time = false;
+let seconds = new Date().getSeconds();
 
 wss.on('connection', ws => {
 	console.log('Client connected');
 	ws.on('message', data => {
-		setInterval(() => {
+		//send a message every second
+		if (seconds !== new Date().getSeconds()) {
 			wss.clients.forEach(client => {
 				client.send(data);
 			});
-		}, 1000);
+		}
+
+		seconds = new Date().getSeconds();
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
