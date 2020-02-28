@@ -186,7 +186,23 @@
 			 * Handle device orientation
 			 */
 
-			window.addEventListener('deviceorientation', handleOrientation, true)
+			// request permission for iOS 13+
+			if (
+				window.DeviceOrientationEvent !== undefined &&
+				typeof window.DeviceOrientationEvent.requestPermission === 'function'
+			) {
+				window.DeviceOrientationEvent.requestPermission()
+					.then(response => {
+						if (response == 'granted') {
+							window.addEventListener('deviceorientation', handleOrientation, true)
+						}
+					})
+					.catch(error => {
+						console.error('Unable to use DeviceOrientation API:', error)
+					})
+			} else {
+				window.addEventListener('deviceorientation', handleOrientation, true)
+			}
 
 			/**
 			 * Websockets communication
