@@ -36,6 +36,14 @@
 
 		<div id="server-time" class="time">waiting for connection</div>
 
+		<h2 class="bold">Device Alpha:</h2>
+
+		<div id="device-alpha">waiting for device event</div>
+
+		<h2 class="bold">Device Gamma:</h2>
+
+		<div id="device-gamma">waiting for device event</div>
+
 		<h2 class="bold">
 			<span>Device Beta:</span>
 			<span class="dialog">
@@ -60,66 +68,66 @@
 		<div id="server-beta">waiting for connection</div>
 
 		<script>
-			const TIME = false;
-			const HOST = location.origin.replace(/^http/, 'ws');
-			const ws = new WebSocket(HOST);
+			const HOST = location.origin.replace(/^http/, 'WEBSOCKET')
+			const WEBSOCKET = new WebSocket(HOST)
+			const DEBUG_TIME = false
 
-			let betaValue = 0;
-			let connected = false;
+			let alphaValue = 0
+			let betaValue = 0
+			let gammaValue = 0
+			let connected = false
 
 			const getClientTime = now => {
-				const hours = now.getHours();
-				const minutes = now.getMinutes();
-				const seconds = now.getSeconds();
-				const milliseconds = now.getMilliseconds();
+				const hours = now.getHours()
+				const minutes = now.getMinutes()
+				const seconds = now.getSeconds()
+				const milliseconds = now.getMilliseconds()
 
-				const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+				const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`
 
-				return dateString;
-			};
+				return dateString
+			}
 
 			const setNode = (origin, value) => {
-				let node;
+				let node
 
 				switch (origin) {
 					case 'time-client':
-						node = document.querySelector('#client-time');
-						break;
+						node = document.querySelector('#client-time')
+						break
 
 					case 'time-server':
-						node = document.querySelector('#server-time');
-						break;
+						node = document.querySelector('#server-time')
+						break
 
 					case 'beta-client':
-						node = document.querySelector('#device-beta');
-						break;
+						node = document.querySelector('#device-beta')
+						break
 
 					case 'beta-server':
-						node = document.querySelector('#server-beta');
-						break;
+						node = document.querySelector('#server-beta')
+						break
 
 					default:
-						break;
+						break
 				}
 
-				if (node) node.innerText = value;
-			};
+				if (node) node.innerText = value
+			}
 
-			const sendBetaValue = value => {
-				const message = { type: 'beta', message: value.toString() };
-				const string = JSON.stringify(message);
-				ws.send(string);
-			};
+			const sendToServer = (type, value) => {
+				const message = { type: type, message: value.toString() }
+				const string = JSON.stringify(message)
+				WEBSOCKET.send(string)
+			}
 
 			const handleOrientation = event => {
-				/*
-					Absolute: is true if the orientation data in instanceOfDeviceOrientationEvent is provided as the difference between the Earth's coordinate frame and the device's coordinate frame, or false if the orientation data is being provided in reference to some arbitrary, device-determined coordinate frame.
-				*/
-
 				/*
 					Alpha: represents the motion of the device around the z axis.
 					Represented in degrees with values ranging from 0 to 360.
 				*/
+
+				alphaValue = event.alpha
 
 				/*
 					Beta: represents the motion of the device around the x axis.
@@ -127,55 +135,66 @@
 					This represents a front to back motion of the device.
 				*/
 
+				betaValue = event.beta
+
 				/*
 					Gamma: represents the motion of the device around the y axis.
 					Represented in degrees with values ranging from -90 to 90.
 					This represents a left to right motion of the device.
 				*/
-				betaValue = event.beta;
-				setNode('beta-client', betaValue);
-				if (connected) sendBetaValue(betaValue);
-			};
+
+				gammaValue = event.gamma
+
+				setNode('alpha-client', alphaValue)
+				setNode('beta-client', betaValue)
+				setNode('gamma-client', gammaValue)
+
+				if (connected) {
+					sendToServer('alpha', alphaValue)
+					sendToServer('beta', betaValue)
+					sendToServer('gamma', gammaValue)
+				}
+			}
 
 			/**
 			 * Client and server time, mainly for debug purposes
 			 */
 
-			if (TIME)
+			if (DEBUG_TIME)
 				setInterval(() => {
-					setNode('time-client', getClientTime(new Date()));
-				}, 1);
-			else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'));
+					setNode('time-client', getClientTime(new Date()))
+				}, 1)
+			else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 
 			/**
 			 * Handle device orientation
 			 */
 
-			window.addEventListener('deviceorientation', handleOrientation, true);
+			window.addEventListener('deviceorientation', handleOrientation, true)
 
 			/**
 			 * Websockets communication
 			 */
 
-			ws.onopen = event => {
-				connected = true;
-			};
+			WEBSOCKET.onopen = event => {
+				connected = true
+			}
 
-			ws.onmessage = event => {
-				const data = JSON.parse(event.data);
+			WEBSOCKET.onmessage = event => {
+				const data = JSON.parse(event.data)
 
 				switch (data.type) {
 					case 'time':
-						setNode('time-server', data.message);
-						break;
+						if (DEBUG_TIME) setNode('time-server', data.message)
+						break
 					case 'beta':
-						setNode('beta-server', data.message);
-						break;
+						setNode('beta-server', data.message)
+						break
 
 					default:
-						break;
+						break
 				}
-			};
+			}
 		</script>
 	</body>
 </html>
