@@ -68,7 +68,7 @@
 		<div id="server-beta">waiting for connection</div>
 
 		<script>
-			const HOST = location.origin.replace(/^http/, 'WEBSOCKET')
+			const HOST = location.origin.replace(/^http/, 'ws')
 			const WEBSOCKET = new WebSocket(HOST)
 			const DEBUG_TIME = false
 
@@ -160,11 +160,19 @@
 			 * Client and server time, mainly for debug purposes
 			 */
 
-			if (DEBUG_TIME)
+			document
+				.querySelectorAll('h2.time, #client-time, #server-time')
+				.forEach(node => (node.style.display = 'none'))
+
+			if (DEBUG_TIME) {
+				document
+					.querySelectorAll('h2.time, #client-time, #server-time')
+					.forEach(node => (node.style.display = 'block'))
+
 				setInterval(() => {
 					setNode('time-client', getClientTime(new Date()))
 				}, 1)
-			else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
+			} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 
 			/**
 			 * Handle device orientation
