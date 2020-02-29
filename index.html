@@ -124,7 +124,7 @@
 			}
 
 			const sendToServer = (type, value) => {
-				const message = { type: type, message: value.toString() }
+				const message = { type: type, message: JSON.stringify(value) }
 				const string = JSON.stringify(message)
 				WEBSOCKET.send(string)
 			}
@@ -157,10 +157,12 @@
 				setNode('beta-client', betaValue)
 				setNode('gamma-client', gammaValue)
 
-				if (connected) {
-					sendToServer('alpha', alphaValue)
-					sendToServer('beta', betaValue)
-					sendToServer('gamma', gammaValue)
+				if (connected && alphaValue && betaValue && gammaValue) {
+					sendToServer('alpha', {
+						alpha: alphaValue,
+						beta: betaValue,
+						gamma: gammaValue,
+					})
 				}
 			}
 
@@ -186,7 +188,7 @@
 			 * Handle device orientation
 			 */
 
-			// request permission for iOS 13+
+			// request permission for iOS 13+ ? NOT WORKING
 			if (
 				window.DeviceOrientationEvent !== undefined &&
 				typeof window.DeviceOrientationEvent.requestPermission === 'function'
