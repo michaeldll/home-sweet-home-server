@@ -63,9 +63,17 @@
 
 		<div id="device-beta">waiting for device event</div>
 
+		<h2>Server Alpha:</h2>
+
+		<div id="server-alpha">waiting for connection</div>
+
 		<h2>Server Beta:</h2>
 
 		<div id="server-beta">waiting for connection</div>
+
+		<h2>Server Gamma:</h2>
+
+		<div id="server-gamma">waiting for connection</div>
 
 		<script>
 			const HOST = location.origin.replace(/^http/, 'ws')
@@ -112,8 +120,16 @@
 						node = document.querySelector('#device-alpha')
 						break
 
+					case 'alpha-server':
+						node = document.querySelector('#server-gamma')
+						break
+
 					case 'gamma-client':
 						node = document.querySelector('#device-gamma')
+						break
+
+					case 'gamma-server':
+						node = document.querySelector('#server-gamma')
 						break
 
 					default:
@@ -158,7 +174,7 @@
 				setNode('gamma-client', gammaValue)
 
 				if (connected && alphaValue && betaValue && gammaValue) {
-					sendToServer('alpha', {
+					sendToServer('orientation', {
 						alpha: alphaValue,
 						beta: betaValue,
 						gamma: gammaValue,
@@ -216,13 +232,16 @@
 
 			WEBSOCKET.onmessage = event => {
 				const data = JSON.parse(event.data)
+				console.log(event)
 
 				switch (data.type) {
 					case 'time':
 						if (DEBUG_TIME) setNode('time-server', data.message)
 						break
-					case 'beta':
-						setNode('beta-server', data.message)
+					case 'orientation':
+						setNode('alpha-server', data.message.alpha)
+						setNode('beta-server', data.message.beta)
+						setNode('gamma-server', data.message.gamma)
 						break
 
 					default:

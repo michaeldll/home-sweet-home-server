@@ -15,25 +15,25 @@ const server = express()
 const { Server } = require('ws');
 const wss = new Server({ server });
 
-const time = false;
+const debug = false;
 let seconds = new Date().getSeconds();
 
 wss.on('connection', ws => {
 	console.log('Client connected');
 	ws.on('message', data => {
 		//uncomment to send a message every second instead of every tick
-		// if (seconds !== new Date().getSeconds()) {
-		wss.clients.forEach(client => {
-			client.send(data);
-		});
-		// }
+		if (seconds !== new Date().getSeconds()) {
+			wss.clients.forEach(client => {
+				client.send(data);
+			});
+		}
 
 		// seconds = new Date().getSeconds();
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
 
-if (time)
+if (debug)
 	setInterval(() => {
 		wss.clients.forEach(client => {
 			const now = new Date();
