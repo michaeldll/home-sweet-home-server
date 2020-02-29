@@ -232,7 +232,7 @@
 
 			WEBSOCKET.onmessage = event => {
 				const data = JSON.parse(event.data)
-				console.log(event)
+				console.log(data)
 
 				switch (data.type) {
 					case 'time':
