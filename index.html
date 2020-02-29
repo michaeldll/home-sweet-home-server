@@ -232,16 +232,15 @@
 
 			WEBSOCKET.onmessage = event => {
 				const data = JSON.parse(event.data)
-
+				const message = JSON.parse(event.data.message)
 				switch (data.type) {
 					case 'time':
-						if (DEBUG_TIME) setNode('time-server', data.message)
+						if (DEBUG_TIME) setNode('time-server', message.time)
 						break
 					case 'orientation':
-						console.log(data, data.message, data.message.alpha)
-						setNode('alpha-server', data.message.alpha)
-						setNode('beta-server', data.message.beta)
-						setNode('gamma-server', data.message.gamma)
+						setNode('alpha-server', message.alpha)
+						setNode('beta-server', message.beta)
+						setNode('gamma-server', message.gamma)
 						break
 
 					default:
