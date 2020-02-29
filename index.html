@@ -232,7 +232,7 @@
 
 			WEBSOCKET.onmessage = event => {
 				const data = JSON.parse(event.data)
-				const message = JSON.parse(event.data.message)
+				const message = JSON.parse(data.message)
 				switch (data.type) {
 					case 'time':
 						if (DEBUG_TIME) setNode('time-server', message.time)
