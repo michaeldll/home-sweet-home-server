@@ -241,7 +241,7 @@
 
 				if (typeof event.data.text === 'function') {
 					console.log(event.data.text().then(v => console.log(v)))
-					reader.readAsArrayBuffer(blob)
+					reader.readAsArrayBuffer(event.data)
 				} else {
 					data = JSON.parse(event.data)
 					message = JSON.parse(data.message)
