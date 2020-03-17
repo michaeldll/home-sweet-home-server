@@ -238,7 +238,7 @@
 				let message
 
 				if (event.data instanceof Blob) {
-					blob.text().then(text => {
+					event.data.text().then(text => {
 						console.log(getWebSocketDataFromText(text))
 					})
 				} else {
