@@ -207,6 +207,9 @@
 				return data
 			}
 
+			const onNotificationMessage = message => {
+				alert(message)
+			}
 			/**
 			 * Handle device orientation
 			 */
@@ -245,7 +248,7 @@
 					event.data.text().then(text => {
 						data = getWebSocketDataFromBlobText(text)
 						message = JSON.parse(data.message)
-						alert(message.soundName)
+						onNotificationMessage(message)
 					})
 				} else {
 					data = JSON.parse(event.data)
