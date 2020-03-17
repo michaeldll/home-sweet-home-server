@@ -5,6 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title>Home sweet Home - Websockets Server</title>
 		<style>
+			body.purple {
+				background: purple;
+			}
 			.hide {
 				display: none;
 			}
@@ -208,7 +211,7 @@
 			}
 
 			const onNotificationMessage = message => {
-				alert(message.soundName)
+				document.querySelector('body').classList.toggle('purple')
 			}
 			/**
 			 * Handle device orientation
