@@ -233,10 +233,15 @@
 			WEBSOCKET.onmessage = event => {
 				let data
 				let message
+				const reader = new FileReader()
+				reader.addEventListener('loadend', () => {
+					// reader.result contains the contents of blob as a typed array
+					console.log(reader.result)
+				})
 
 				if (typeof event.data.text === 'function') {
 					console.log(event.data.text().then(v => console.log(v)))
-					console.log(await(new Response(event.data)).text())
+					reader.readAsArrayBuffer(blob)
 				} else {
 					data = JSON.parse(event.data)
 					message = JSON.parse(data.message)
