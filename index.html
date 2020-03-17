@@ -182,7 +182,7 @@
 				}
 			}
 
-			const getWebSocketDataFromText = text => {
+			const getWebSocketDataFromBlobText = text => {
 				const regex = /(type)�(.*)�(message)�(.*)/gm
 				let matches
 				let data = {
@@ -243,28 +243,28 @@
 
 				if (event.data instanceof Blob) {
 					event.data.text().then(text => {
-						console.log(getWebSocketDataFromText(text).type)
-						console.log(getWebSocketDataFromText(text).message)
+						data = getWebSocketDataFromBlobText(text)
 					})
 				} else {
 					data = JSON.parse(event.data)
-					message = JSON.parse(data.message)
+				}
 
-					switch (data.type) {
-						case 'time':
-							if (DEBUG_TIME) setNode('time-server', message.time)
-							break
-						case 'orientation':
-							setNode('alpha-server', message.alpha)
-							setNode('beta-server', message.beta)
-							setNode('gamma-server', message.gamma)
-							break
-						case 'notif':
-							alert(message.soundName)
+				message = JSON.parse(data.message)
 
-						default:
-							break
-					}
+				switch (data.type) {
+					case 'time':
+						if (DEBUG_TIME) setNode('time-server', message.time)
+						break
+					case 'orientation':
+						setNode('alpha-server', message.alpha)
+						setNode('beta-server', message.beta)
+						setNode('gamma-server', message.gamma)
+						break
+					case 'notif':
+						alert(message.soundName)
+
+					default:
+						break
 				}
 			}
 
