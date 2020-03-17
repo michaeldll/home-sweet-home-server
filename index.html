@@ -244,27 +244,26 @@
 				if (event.data instanceof Blob) {
 					event.data.text().then(text => {
 						data = getWebSocketDataFromBlobText(text)
+						message = JSON.parse(data.message)
+						alert(message.soundName)
 					})
 				} else {
 					data = JSON.parse(event.data)
-				}
+					message = JSON.parse(data.message)
 
-				message = JSON.parse(data.message)
+					switch (data.type) {
+						case 'time':
+							if (DEBUG_TIME) setNode('time-server', message.time)
+							break
+						case 'orientation':
+							setNode('alpha-server', message.alpha)
+							setNode('beta-server', message.beta)
+							setNode('gamma-server', message.gamma)
+							break
 
-				switch (data.type) {
-					case 'time':
-						if (DEBUG_TIME) setNode('time-server', message.time)
-						break
-					case 'orientation':
-						setNode('alpha-server', message.alpha)
-						setNode('beta-server', message.beta)
-						setNode('gamma-server', message.gamma)
-						break
-					case 'notif':
-						alert(message.soundName)
-
-					default:
-						break
+						default:
+							break
+					}
 				}
 			}
 
