@@ -231,6 +231,7 @@
 			}
 
 			WEBSOCKET.onmessage = event => {
+				console.log(event.data)
 				const data = JSON.parse(event.data)
 				console.log(data)
 				const message = JSON.parse(data.message)
