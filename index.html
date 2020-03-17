@@ -28,13 +28,13 @@
 	</head>
 
 	<body>
-		<h2 class="time bold">Client time :</h2>
+		<!-- <h2 class="time bold">Client time :</h2>
 
 		<div id="client-time" class="time">waiting for javascript</div>
 
 		<h2 class="time bold" class="time">Server time :</h2>
 
-		<div id="server-time" class="time">waiting for connection</div>
+		<div id="server-time" class="time">waiting for connection</div> -->
 
 		<h2 class="bold">Device Alpha:</h2>
 
@@ -182,23 +182,26 @@
 				}
 			}
 
-			/**
-			 * Client and server time, mainly for debug purposes
-			 */
+			const getWebSocketDataFromText = text => {
+				const regex = /(type)�(.*)�(message)�(.*)/gm
+				let matches
+				let data = []
 
-			document
-				.querySelectorAll('h2.time, #client-time, #server-time')
-				.forEach(node => (node.style.display = 'none'))
+				while ((matches = regex.exec(text)) !== null) {
+					// This is necessary to avoid infinite loops with zero-width matches
+					if (matches.index === regex.lastIndex) {
+						regex.lastIndex++
+					}
 
-			if (DEBUG_TIME) {
-				document
-					.querySelectorAll('h2.time, #client-time, #server-time')
-					.forEach(node => (node.style.display = 'block'))
+					// The result can be accessed through the `matches`-variable.
+					matches.forEach((match, groupIndex) => {
+						console.log(`Found match, group ${groupIndex}: ${match}`)
+						data.push({ index: groupIndex, text: match })
+					})
+				}
 
-				setInterval(() => {
-					setNode('time-client', getClientTime(new Date()))
-				}, 1)
-			} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
+				return data
+			}
 
 			/**
 			 * Handle device orientation
@@ -233,15 +236,11 @@
 			WEBSOCKET.onmessage = event => {
 				let data
 				let message
-				const reader = new FileReader()
-				reader.addEventListener('loadend', () => {
-					// reader.result contains the contents of blob as a typed array
-					console.log(reader.result)
-				})
 
-				if (typeof event.data.text === 'function') {
-					console.log(event.data.text().then(v => console.log(v)))
-					reader.readAsText(event.data)
+				if (event.data instanceof Blob) {
+					blob.text().then(text => {
+						console.log(getWebSocketDataFromText(text))
+					})
 				} else {
 					data = JSON.parse(event.data)
 					message = JSON.parse(data.message)
@@ -263,6 +262,24 @@
 					}
 				}
 			}
+
+			/**
+			 * Client and server time, mainly for debug purposes
+			 */
+
+			// document
+			// 	.querySelectorAll('h2.time, #client-time, #server-time')
+			// 	.forEach(node => (node.style.display = 'none'))
+
+			// if (DEBUG_TIME) {
+			// 	document
+			// 		.querySelectorAll('h2.time, #client-time, #server-time')
+			// 		.forEach(node => (node.style.display = 'block'))
+
+			// 	setInterval(() => {
+			// 		setNode('time-client', getClientTime(new Date()))
+			// 	}, 1)
+			// } else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 		</script>
 	</body>
 </html>
