@@ -235,7 +235,7 @@
 				let message
 
 				if (typeof event.data.text === 'function') {
-					console.log(event.data.text())
+					console.log(event.data.text().then(v => console.log(v)))
 				} else {
 					data = JSON.parse(event.data)
 					message = JSON.parse(data.message)
