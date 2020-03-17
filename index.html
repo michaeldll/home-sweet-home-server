@@ -185,7 +185,10 @@
 			const getWebSocketDataFromText = text => {
 				const regex = /(type)�(.*)�(message)�(.*)/gm
 				let matches
-				let data = []
+				let data = {
+					type: '',
+					message: {},
+				}
 
 				while ((matches = regex.exec(text)) !== null) {
 					// This is necessary to avoid infinite loops with zero-width matches
@@ -195,8 +198,9 @@
 
 					// The result can be accessed through the `matches`-variable.
 					matches.forEach((match, groupIndex) => {
-						console.log(`Found match, group ${groupIndex}: ${match}`)
-						data.push({ index: groupIndex, text: match })
+						// console.log(`Found match, group ${groupIndex}: ${match}`)
+						if (match === 'type') data.type = match
+						if (match.indexOf('{') > -1) data.message = match
 					})
 				}
 
@@ -239,7 +243,8 @@
 
 				if (event.data instanceof Blob) {
 					event.data.text().then(text => {
-						console.log(getWebSocketDataFromText(text))
+						console.log(getWebSocketDataFromText(text).type)
+						console.log(getWebSocketDataFromText(text).message)
 					})
 				} else {
 					data = JSON.parse(event.data)
