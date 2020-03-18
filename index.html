@@ -90,7 +90,7 @@
 			let alphaValue = 0
 			let betaValue = 0
 			let gammaValue = 0
-			let connected = false
+			let isWebsocketsConnected = false
 
 			const setNode = (origin, value) => {
 				let node
@@ -145,10 +145,6 @@
 			}
 
 			/**
-			 * Handle device authorization
-			 */
-
-			/**
 			 * Handle device orientation
 			 */
 
@@ -181,7 +177,7 @@
 					setNode('beta-client', betaValue)
 					setNode('gamma-client', gammaValue)
 
-					if (connected && alphaValue && betaValue && gammaValue) {
+					if (isWebsocketsConnected && alphaValue && betaValue && gammaValue) {
 						sendToServer('orientation', {
 							alpha: alphaValue,
 							beta: betaValue,
@@ -197,16 +193,13 @@
 			 * Handle device Acceleration
 			 */
 
-			const handleAcceloremeter = () => {
-				let accelerometer = new Accelerometer({ frequency: 60 })
-
-				accelerometer.addEventListener('reading', event => {
-					console.log('Acceleration along the X-axis ' + event.acceleration.x)
-					console.log('Acceleration along the Y-axis ' + event.acceleration.y)
-					console.log('Acceleration along the Z-axis ' + event.acceleration.z)
-				})
-
-				accelerometer.start()
+			const handleMotion = () => {
+				const onMotion = e => {
+					console.log(e.acceleration.x)
+					console.log(e.acceleration.y)
+					console.log(e.acceleration.z)
+				}
+				window.addEventListener('devicemotion', onMotion)
 			}
 
 			/**
@@ -245,7 +238,7 @@
 				}
 
 				WEBSOCKET.onopen = event => {
-					connected = true
+					isWebsocketsConnected = true
 				}
 
 				WEBSOCKET.onmessage = event => {
@@ -313,7 +306,7 @@
 			*/
 
 			handleOrientation()
-			handleAcceloremeter()
+			handleMotion()
 			handleWebsockets()
 		</script>
 	</body>
