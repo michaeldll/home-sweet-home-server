@@ -124,6 +124,7 @@
 			let betaValue = 0
 			let gammaValue = 0
 			let isWebsocketsConnected = false
+			let hasExperienceStarted = false
 
 			const setNode = (origin, value) => {
 				let node
@@ -335,11 +336,8 @@
 			})
 
 			setInterval(() => {
-				if (granted.gyro && granted.accel) {
-					console.log('init')
-					handleOrientation()
-					handleMotion()
-					handleWebsockets()
+				if (granted.gyro && granted.accel && !hasExperienceStarted) {
+					init()
 				}
 			}, 100)
 
@@ -375,6 +373,20 @@
 				} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 			}
 			*/
+
+			/**
+			 *
+			 */
+
+			const init = () => {
+				console.log('init')
+
+				handleOrientation()
+				handleMotion()
+				handleWebsockets()
+
+				hasExperienceStarted = true
+			}
 		</script>
 	</body>
 </html>
