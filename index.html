@@ -31,56 +31,89 @@
 	</head>
 
 	<body>
-		<!-- <h2 class="time bold">Client time :</h2>
+		<!-- <div class="time-container">
+			<h2 class="time bold">Client time :</h2>
+			<div id="client-time" class="time">waiting for javascript</div>
 
-		<div id="client-time" class="time">waiting for javascript</div>
+			<h2 class="time bold" class="time">Server time :</h2>
+			<div id="server-time" class="time">waiting for connection</div>
+		</div>
 
-		<h2 class="time bold" class="time">Server time :</h2>
+		<hr/> -->
 
-		<div id="server-time" class="time">waiting for connection</div> -->
+		<div class="orientation-container">
+			<h2 class="bold">Device Alpha:</h2>
+			<div id="device-alpha">waiting for device event</div>
 
-		<h2 class="bold">Device Alpha:</h2>
+			<h2 class="bold">
+				<span>Device Beta:</span>
+				<span class="dialog">
+					<button>?</button>
+					<div class="content">
+						<p class="small">
+							Represents the front to back motion of the device, around the x axis. <br />
+							In degrees with values ranging from -180 to 180. <br />
+						</p>
 
-		<div id="device-alpha">waiting for device event</div>
+						<p class="small bold">
+							Only works on devices emitting the "deviceorientation" event, like smartphones.
+						</p>
+					</div>
+				</span>
+			</h2>
+			<div id="device-beta">waiting for device event</div>
 
-		<h2 class="bold">
-			<span>Device Beta:</span>
-			<span class="dialog">
-				<button>?</button>
-				<div class="content">
-					<p class="small">
-						Represents the front to back motion of the device, around the x axis. <br />
-						In degrees with values ranging from -180 to 180. <br />
-					</p>
+			<h2 class="bold">Device Gamma:</h2>
+			<div id="device-gamma">waiting for device event</div>
+		</div>
 
-					<p class="small bold">
-						Only works on devices emitting the "deviceorientation" event, like smartphones.
-					</p>
-				</div>
-			</span>
-		</h2>
+		<hr />
 
-		<div id="device-beta">waiting for device event</div>
+		<div class="server-orientation-container">
+			<h2>Server Alpha:</h2>
+			<div id="server-alpha">waiting for connection</div>
 
-		<h2 class="bold">Device Gamma:</h2>
+			<h2>Server Beta:</h2>
+			<div id="server-beta">waiting for connection</div>
 
-		<div id="device-gamma">waiting for device event</div>
+			<h2>Server Gamma:</h2>
+			<div id="server-gamma">waiting for connection</div>
+		</div>
 
-		<h2>Server Alpha:</h2>
+		<hr />
 
-		<div id="server-alpha">waiting for connection</div>
+		<div class="device-motion-container">
+			<h2 class="bold">
+				<span>Device Motion X:</span>
+				<span class="dialog">
+					<button>?</button>
+					<div class="content">
+						<p class="small">
+							Represents the acceleration upon the x axis which is the west to east axis<br />
+							In meters per second squared. <br />
+						</p>
 
-		<h2>Server Beta:</h2>
+						<p class="small bold">
+							Only works on devices emitting the "devicemotion" event, like smartphones.
+						</p>
+					</div>
+				</span>
+			</h2>
+			<div id="device-motion-x">waiting for device event</div>
 
-		<div id="server-beta">waiting for connection</div>
+			<h2 class="bold">Device Motion Y:</h2>
+			<div id="device-motion-y">waiting for device event</div>
 
-		<h2>Server Gamma:</h2>
+			<h2 class="bold">Device Motion Z:</h2>
+			<div id="device-motion-z">waiting for device event</div>
+		</div>
 
-		<div id="server-gamma">waiting for connection</div>
+		<hr />
 
-		<h2>Game notification</h2>
-
-		<div id="notif">waiting for notification</div>
+		<div class="game-notification-container">
+			<h2>Game notification</h2>
+			<div id="notif">waiting for notification</div>
+		</div>
 
 		<script>
 			const HOST = location.origin.replace(/^http/, 'ws')
@@ -130,6 +163,9 @@
 
 					case 'notif':
 						node = document.querySelector('#notif')
+
+					case 'motion-x-client':
+						node = document.querySelector('#device-motion-x')
 
 					default:
 						break
