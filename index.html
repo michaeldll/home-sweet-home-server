@@ -181,28 +181,6 @@
 			}
 
 			/**
-			 * Handle permissions
-			 */
-
-			navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
-				if (result.state == 'granted') {
-					console.log('granted')
-				} else if (result.state == 'prompt') {
-					console.log('asking')
-				}
-				// Don't do anything if the permission was denied.
-			})
-
-			navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
-				if (result.state == 'granted') {
-					console.log('granted accel')
-				} else if (result.state == 'prompt') {
-					console.log('asking accel')
-				}
-				// Don't do anything if the permission was denied.
-			})
-
-			/**
 			 * Handle device orientation
 			 */
 
@@ -331,6 +309,31 @@
 			}
 
 			/**
+			 * Handle permissions
+			 */
+
+			navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
+				if (result.state == 'granted') {
+					console.log('granted')
+				} else if (result.state == 'prompt') {
+					console.log('asking')
+				}
+				// Don't do anything if the permission was denied.
+			})
+
+			navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
+				if (result.state == 'granted') {
+					console.log('granted accel')
+					handleOrientation()
+					handleMotion()
+					handleWebsockets()
+				} else if (result.state == 'prompt') {
+					console.log('asking accel')
+				}
+				// Don't do anything if the permission was denied.
+			})
+
+			/**
 			 * Client and server time, for delay debug purposes
 			 */
 
@@ -362,10 +365,6 @@
 				} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 			}
 			*/
-
-			handleOrientation()
-			handleMotion()
-			handleWebsockets()
 		</script>
 	</body>
 </html>
