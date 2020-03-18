@@ -78,26 +78,19 @@
 
 		<div id="server-gamma">waiting for connection</div>
 
+		<h2>Game notification</h2>
+
+		<div id="notif">waiting for notification</div>
+
 		<script>
 			const HOST = location.origin.replace(/^http/, 'ws')
 			const WEBSOCKET = new WebSocket(HOST)
-			const DEBUG_TIME = false
+			// const DEBUG_TIME = false
 
 			let alphaValue = 0
 			let betaValue = 0
 			let gammaValue = 0
 			let connected = false
-
-			const getClientTime = now => {
-				const hours = now.getHours()
-				const minutes = now.getMinutes()
-				const seconds = now.getSeconds()
-				const milliseconds = now.getMilliseconds()
-
-				const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`
-
-				return dateString
-			}
 
 			const setNode = (origin, value) => {
 				let node
@@ -135,6 +128,9 @@
 						node = document.querySelector('#server-gamma')
 						break
 
+					case 'notif':
+						node = document.querySelector('#notif')
+
 					default:
 						break
 				}
@@ -148,148 +144,177 @@
 				WEBSOCKET.send(string)
 			}
 
-			const handleOrientation = event => {
-				/*
+			/**
+			 * Handle device authorization
+			 */
+
+			/**
+			 * Handle device orientation
+			 */
+
+			const handleOrientation = () => {
+				const onOrientation = event => {
+					/*
 					Alpha: represents the motion of the device around the z axis.
 					Represented in degrees with values ranging from 0 to 360.
 				*/
 
-				alphaValue = event.alpha
+					alphaValue = event.alpha
 
-				/*
+					/*
 					Beta: represents the motion of the device around the x axis.
 					Represented in degrees with values ranging from -180 to 180.
 					This represents a front to back motion of the device.
 				*/
 
-				betaValue = event.beta
+					betaValue = event.beta
 
-				/*
+					/*
 					Gamma: represents the motion of the device around the y axis.
 					Represented in degrees with values ranging from -90 to 90.
 					This represents a left to right motion of the device.
 				*/
 
-				gammaValue = event.gamma
+					gammaValue = event.gamma
 
-				setNode('alpha-client', alphaValue)
-				setNode('beta-client', betaValue)
-				setNode('gamma-client', gammaValue)
+					setNode('alpha-client', alphaValue)
+					setNode('beta-client', betaValue)
+					setNode('gamma-client', gammaValue)
 
-				if (connected && alphaValue && betaValue && gammaValue) {
-					sendToServer('orientation', {
-						alpha: alphaValue,
-						beta: betaValue,
-						gamma: gammaValue,
-					})
-				}
-			}
-
-			const getWebSocketDataFromBlobText = text => {
-				const regex = /(type)�(.*)�(message)�(.*)/gm
-				let matches
-				let data = {
-					type: '',
-					message: {},
-				}
-
-				while ((matches = regex.exec(text)) !== null) {
-					// This is necessary to avoid infinite loops with zero-width matches
-					if (matches.index === regex.lastIndex) {
-						regex.lastIndex++
+					if (connected && alphaValue && betaValue && gammaValue) {
+						sendToServer('orientation', {
+							alpha: alphaValue,
+							beta: betaValue,
+							gamma: gammaValue,
+						})
 					}
-
-					// The result can be accessed through the `matches`-variable.
-					matches.forEach((match, groupIndex) => {
-						// console.log(`Found match, group ${groupIndex}: ${match}`)
-						if (match === 'type') data.type = match
-						if (match.indexOf('{') > -1) data.message = match
-					})
 				}
 
-				return data
+				window.addEventListener('deviceorientation', onOrientation, true)
 			}
 
-			const onNotificationMessage = message => {
-				document.querySelector('body').classList.toggle('purple')
-			}
 			/**
-			 * Handle device orientation
+			 * Handle device Acceleration
 			 */
 
-			// request permission for iOS 13+ ? NOT WORKING
-			if (
-				window.DeviceOrientationEvent !== undefined &&
-				typeof window.DeviceOrientationEvent.requestPermission === 'function'
-			) {
-				window.DeviceOrientationEvent.requestPermission()
-					.then(response => {
-						if (response == 'granted') {
-							window.addEventListener('deviceorientation', handleOrientation, true)
+			const handleAcceloremeter = () => {
+				let accelerometer = new Accelerometer({ frequency: 60 })
+
+				accelerometer.addEventListener('reading', event => {
+					console.log('Acceleration along the X-axis ' + event.acceleration.x)
+					console.log('Acceleration along the Y-axis ' + event.acceleration.y)
+					console.log('Acceleration along the Z-axis ' + event.acceleration.z)
+				})
+
+				accelerometer.start()
+			}
+
+			/**
+			 * Handle Websockets
+			 */
+
+			const handleWebsockets = () => {
+				const onNotificationMessage = message => {
+					document.querySelector('body').classList.toggle('purple')
+					setNode('notif', Array.from(message)[0])
+				}
+
+				const getWebSocketDataFromBlobText = text => {
+					const regex = /(type)�(.*)�(message)�(.*)/gm
+					let matches
+					let data = {
+						type: '',
+						message: {},
+					}
+
+					while ((matches = regex.exec(text)) !== null) {
+						// This is necessary to avoid infinite loops with zero-width matches
+						if (matches.index === regex.lastIndex) {
+							regex.lastIndex++
 						}
-					})
-					.catch(error => {
-						console.error('Unable to use DeviceOrientation API:', error)
-					})
-			} else {
-				window.addEventListener('deviceorientation', handleOrientation, true)
-			}
 
-			/**
-			 * Websockets communication
-			 */
+						// The result can be accessed through the `matches`-variable.
+						matches.forEach((match, groupIndex) => {
+							// console.log(`Found match, group ${groupIndex}: ${match}`)
+							if (match === 'type') data.type = match
+							if (match.indexOf('{') > -1) data.message = match
+						})
+					}
 
-			WEBSOCKET.onopen = event => {
-				connected = true
-			}
+					return data
+				}
 
-			WEBSOCKET.onmessage = event => {
-				let data
-				let message
+				WEBSOCKET.onopen = event => {
+					connected = true
+				}
 
-				if (event.data instanceof Blob) {
-					event.data.text().then(text => {
-						data = getWebSocketDataFromBlobText(text)
+				WEBSOCKET.onmessage = event => {
+					let data
+					let message
+
+					if (event.data instanceof Blob) {
+						event.data.text().then(text => {
+							data = getWebSocketDataFromBlobText(text)
+							message = JSON.parse(data.message)
+							onNotificationMessage(message)
+						})
+					} else {
+						data = JSON.parse(event.data)
 						message = JSON.parse(data.message)
-						onNotificationMessage(message)
-					})
-				} else {
-					data = JSON.parse(event.data)
-					message = JSON.parse(data.message)
 
-					switch (data.type) {
-						case 'time':
-							if (DEBUG_TIME) setNode('time-server', message.time)
-							break
-						case 'orientation':
-							setNode('alpha-server', message.alpha)
-							setNode('beta-server', message.beta)
-							setNode('gamma-server', message.gamma)
-							break
+						switch (data.type) {
+							case 'time':
+								if (DEBUG_TIME) setNode('time-server', message.time)
+								break
+							case 'orientation':
+								setNode('alpha-server', message.alpha)
+								setNode('beta-server', message.beta)
+								setNode('gamma-server', message.gamma)
+								break
 
-						default:
-							break
+							default:
+								break
+						}
 					}
 				}
 			}
 
 			/**
-			 * Client and server time, mainly for debug purposes
+			 * Client and server time, for delay debug purposes
 			 */
 
-			// document
-			// 	.querySelectorAll('h2.time, #client-time, #server-time')
-			// 	.forEach(node => (node.style.display = 'none'))
+			/*
+			const handleClientServerTime = () => {
+				const getClientTime = now => {
+					const hours = now.getHours()
+					const minutes = now.getMinutes()
+					const seconds = now.getSeconds()
+					const milliseconds = now.getMilliseconds()
 
-			// if (DEBUG_TIME) {
-			// 	document
-			// 		.querySelectorAll('h2.time, #client-time, #server-time')
-			// 		.forEach(node => (node.style.display = 'block'))
+					const dateString = `${hours}:${minutes}:${seconds}:${milliseconds}`
 
-			// 	setInterval(() => {
-			// 		setNode('time-client', getClientTime(new Date()))
-			// 	}, 1)
-			// } else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
+					return dateString
+				}
+
+				document
+					.querySelectorAll('h2.time, #client-time, #server-time')
+					.forEach(node => (node.style.display = 'none'))
+
+				if (DEBUG_TIME) {
+					document
+						.querySelectorAll('h2.time, #client-time, #server-time')
+						.forEach(node => (node.style.display = 'block'))
+
+					setInterval(() => {
+						setNode('time-client', getClientTime(new Date()))
+					}, 1)
+				} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
+			}
+			*/
+
+			handleOrientation()
+			handleAcceloremeter()
+			handleWebsockets()
 		</script>
 	</body>
 </html>
