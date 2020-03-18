@@ -316,12 +316,14 @@
 			const init = () => {
 				console.log('init')
 
+				handleWebsockets()
 				handleOrientation()
 				handleMotion()
-				handleWebsockets()
 
 				hasExperienceStarted = true
 			}
+
+			init()
 
 			/**
 			 * Handle permissions
@@ -357,7 +359,7 @@
 				}, 100)
 			}
 
-			handlePermissions()
+			// handlePermissions()
 
 			/**
 			 * Client and server time, for delay debug purposes
