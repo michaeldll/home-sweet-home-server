@@ -312,11 +312,14 @@
 			 * Handle permissions
 			 */
 
+			let granted = { gyro: false, accel: false }
+
 			navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
 				if (result.state == 'granted') {
-					console.log('granted')
+					console.log('granted gyro')
+					granted.gyro = true
 				} else if (result.state == 'prompt') {
-					console.log('asking')
+					console.log('asking gyro')
 				}
 				// Don't do anything if the permission was denied.
 			})
@@ -324,14 +327,21 @@
 			navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
 				if (result.state == 'granted') {
 					console.log('granted accel')
-					handleOrientation()
-					handleMotion()
-					handleWebsockets()
+					granted.accel = true
 				} else if (result.state == 'prompt') {
 					console.log('asking accel')
 				}
 				// Don't do anything if the permission was denied.
 			})
+
+			setInterval(() => {
+				if (granted.gyro && granted.accel) {
+					console.log('init')
+					handleOrientation()
+					handleMotion()
+					handleWebsockets()
+				}
+			}, 100)
 
 			/**
 			 * Client and server time, for delay debug purposes
