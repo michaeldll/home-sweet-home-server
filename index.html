@@ -310,36 +310,54 @@
 			}
 
 			/**
+			 * Initialize experience
+			 */
+
+			const init = () => {
+				console.log('init')
+
+				handleOrientation()
+				handleMotion()
+				handleWebsockets()
+
+				hasExperienceStarted = true
+			}
+
+			/**
 			 * Handle permissions
 			 */
 
-			let granted = { gyro: false, accel: false }
+			const handlePermissions = () => {
+				let granted = { gyro: false, accel: false }
 
-			navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
-				if (result.state == 'granted') {
-					console.log('granted gyro')
-					granted.gyro = true
-				} else if (result.state == 'prompt') {
-					console.log('asking gyro')
-				}
-				// Don't do anything if the permission was denied.
-			})
+				navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
+					if (result.state == 'granted') {
+						console.log('granted gyro')
+						granted.gyro = true
+					} else if (result.state == 'prompt') {
+						console.log('asking gyro')
+					}
+					// Don't do anything if the permission was denied.
+				})
 
-			navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
-				if (result.state == 'granted') {
-					console.log('granted accel')
-					granted.accel = true
-				} else if (result.state == 'prompt') {
-					console.log('asking accel')
-				}
-				// Don't do anything if the permission was denied.
-			})
+				navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
+					if (result.state == 'granted') {
+						console.log('granted accel')
+						granted.accel = true
+					} else if (result.state == 'prompt') {
+						console.log('asking accel')
+					}
+					// Don't do anything if the permission was denied.
+				})
 
-			setInterval(() => {
-				if (granted.gyro && granted.accel && !hasExperienceStarted) {
-					init()
-				}
-			}, 100)
+				setInterval(() => {
+					if (granted.gyro && granted.accel && !hasExperienceStarted) {
+						init()
+					}
+				}, 100)
+			}
+
+			handlePermissions()
 
 			/**
 			 * Client and server time, for delay debug purposes
@@ -373,20 +391,6 @@
 				} else document.querySelectorAll('.time').forEach(node => node.classList.add('hide'))
 			}
 			*/
-
-			/**
-			 *
-			 */
-
-			const init = () => {
-				console.log('init')
-
-				handleOrientation()
-				handleMotion()
-				handleWebsockets()
-
-				hasExperienceStarted = true
-			}
 		</script>
 	</body>
 </html>
