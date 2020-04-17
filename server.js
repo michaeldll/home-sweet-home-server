@@ -28,7 +28,7 @@ wss.on('connection', (ws) => {
 		// console.log('On message - data: ' + data.toString());
 		wss.clients.forEach((client) => {
 			client.send(data);
-			client.send(JSON.stringify({ id: ws.id }));
+			client.send(JSON.stringify({ type: 'id', message: ws.id }));
 		});
 		// }
 
