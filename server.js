@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Server
  */
@@ -20,12 +22,14 @@ let seconds = new Date().getSeconds();
 
 wss.on('connection', (ws) => {
 	console.log('Client connected');
+	ws.id = uuidv4();
 	ws.on('message', (data) => {
 		//uncomment to send a message every second instead of every tick
 		// if (seconds !== new Date().getSeconds()) {
-		console.log('On message - data: ' + data.toString());
+		// console.log('On message - data: ' + data.toString());
 		wss.clients.forEach((client) => {
 			client.send(data);
+			client.send(JSON.stringify({ id: ws.id }));
 		});
 		// }
 
