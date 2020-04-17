@@ -25,8 +25,10 @@ wss.on('connection', (ws) => {
 	ws.on('message', (data) => {
 		wss.clients.forEach((client) => {
 			client.send(data);
-			const originalData = JSON.parse(data);
+			let originalData = JSON.parse(data);
 			originalData.id = ws.id;
+			console.log(data);
+			console.log(originalData);
 			client.send(JSON.stringify(originalData));
 		});
 	});
