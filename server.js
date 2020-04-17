@@ -27,8 +27,8 @@ wss.on('connection', (ws) => {
 			client.send(data);
 			let originalData = JSON.parse(data);
 			originalData.id = ws.id;
-			console.log(data);
-			console.log(originalData);
+			// console.log(data);
+			// console.log(originalData);
 			client.send(JSON.stringify(originalData));
 		});
 	});
