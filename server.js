@@ -22,13 +22,15 @@ let seconds = new Date().getSeconds();
 wss.on('connection', (ws) => {
 	console.log('Client connected');
 	ws.id = v4();
+	wss.clients.forEach((client) => {
+		client.send(JSON.stringify({ type: 'id', message: ws.id }));
+	});
 	ws.on('message', (data) => {
 		//uncomment to send a message every second instead of every tick
 		// if (seconds !== new Date().getSeconds()) {
 		// console.log('On message - data: ' + data.toString());
 		wss.clients.forEach((client) => {
 			client.send(data);
-			client.send(JSON.stringify({ type: 'id', message: ws.id }));
 		});
 		// }
 
