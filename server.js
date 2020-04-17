@@ -10,7 +10,7 @@ const server = express()
 	.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 /**
- * Websockets
+ * Websocket
  */
 const { v4 } = require('uuid');
 const { Server } = require('ws');
@@ -23,16 +23,12 @@ wss.on('connection', (ws) => {
 	console.log('Client connected');
 	ws.id = v4();
 	ws.on('message', (data) => {
-		//uncomment to send a message every second instead of every tick
-		// if (seconds !== new Date().getSeconds()) {
-		// console.log('On message - data: ' + data.toString());
 		wss.clients.forEach((client) => {
 			client.send(data);
-			client.send(JSON.stringify({ type: 'id', message: ws.id }));
+			const originalData = JSON.parse(data);
+			originalData.id = ws.id;
+			client.send(JSON.stringify(originalData));
 		});
-		// }
-
-		// seconds = new Date().getSeconds();
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
