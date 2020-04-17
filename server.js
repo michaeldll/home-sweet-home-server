@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 /**
  * Server
  */
@@ -14,6 +12,7 @@ const server = express()
 /**
  * Websockets
  */
+const { v4 } = require('uuid');
 const { Server } = require('ws');
 const wss = new Server({ server });
 
@@ -22,7 +21,7 @@ let seconds = new Date().getSeconds();
 
 wss.on('connection', (ws) => {
 	console.log('Client connected');
-	ws.id = uuidv4();
+	ws.id = v4();
 	ws.on('message', (data) => {
 		//uncomment to send a message every second instead of every tick
 		// if (seconds !== new Date().getSeconds()) {
