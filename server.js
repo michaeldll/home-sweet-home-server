@@ -12,23 +12,16 @@ const server = express()
 /**
  * Websocket
  */
-const { v4 } = require('uuid');
 const { Server } = require('ws');
 const wss = new Server({ server });
 
 const debug = false;
-// let seconds = new Date().getSeconds();
 
 wss.on('connection', (ws) => {
 	console.log('Client connected');
-	ws.id = v4();
 	ws.on('message', (data) => {
 		wss.clients.forEach((client) => {
-			let originalData = JSON.parse(data);
-			originalData.id = ws.id;
-			// console.log(data);
-			// console.log(originalData);
-			client.send(JSON.stringify(originalData));
+			client.send(data);
 		});
 	});
 	ws.on('close', () => console.log('Client disconnected'));
