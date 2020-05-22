@@ -116,83 +116,83 @@
 		</div>
 
 		<script>
-			const HOST = location.origin.replace(/^http/, 'ws')
-			const WEBSOCKET = new WebSocket(HOST)
+			const HOST = location.origin.replace(/^http/, 'ws');
+			const WEBSOCKET = new WebSocket(HOST);
 			// const DEBUG_TIME = false
 
-			let alphaValue = 0
-			let betaValue = 0
-			let gammaValue = 0
-			let isWebsocketsConnected = false
-			let hasExperienceStarted = false
+			let alphaValue = 0;
+			let betaValue = 0;
+			let gammaValue = 0;
+			let isWebsocketsConnected = false;
+			let hasExperienceStarted = false;
 
 			const setNode = (origin, value) => {
-				let node
+				let node;
 
 				switch (origin) {
 					case 'time-client':
-						node = document.querySelector('#client-time')
-						break
+						node = document.querySelector('#client-time');
+						break;
 
 					case 'time-server':
-						node = document.querySelector('#server-time')
-						break
+						node = document.querySelector('#server-time');
+						break;
 
 					case 'beta-client':
-						node = document.querySelector('#device-beta')
-						break
+						node = document.querySelector('#device-beta');
+						break;
 
 					case 'beta-server':
-						node = document.querySelector('#server-beta')
-						break
+						node = document.querySelector('#server-beta');
+						break;
 
 					case 'alpha-client':
-						node = document.querySelector('#device-alpha')
-						break
+						node = document.querySelector('#device-alpha');
+						break;
 
 					case 'alpha-server':
-						node = document.querySelector('#server-alpha')
-						break
+						node = document.querySelector('#server-alpha');
+						break;
 
 					case 'gamma-client':
-						node = document.querySelector('#device-gamma')
-						break
+						node = document.querySelector('#device-gamma');
+						break;
 
 					case 'gamma-server':
-						node = document.querySelector('#server-gamma')
-						break
+						node = document.querySelector('#server-gamma');
+						break;
 
 					case 'notif':
-						node = document.querySelector('#notif')
+						node = document.querySelector('#notif');
 
 					case 'motion-x-client':
-						node = document.querySelector('#device-motion-x')
+						node = document.querySelector('#device-motion-x');
 
 					default:
-						break
+						break;
 				}
 
-				if (node) node.innerText = value
-			}
+				if (node) node.innerText = value;
+			};
 
 			const sendToServer = (type, value) => {
-				const message = { type: type, message: JSON.stringify(value) }
-				const string = JSON.stringify(message)
-				WEBSOCKET.send(string)
-			}
+				const message = { type: type, message: JSON.stringify(value) };
+				const string = JSON.stringify(message);
+				WEBSOCKET.send(string);
+			};
 
 			/**
 			 * Handle device orientation
 			 */
 
 			const handleOrientation = () => {
-				const onOrientation = event => {
+				const onOrientation = (event) => {
 					/*
 					Alpha: represents the motion of the device around the z axis.
 					Represented in degrees with values ranging from 0 to 360.
 				*/
 
-					alphaValue = event.alpha
+					alphaValue = event.alpha;
 
 					/*
 					Beta: represents the motion of the device around the x axis.
@@ -200,7 +200,7 @@
 					This represents a front to back motion of the device.
 				*/
 
-					betaValue = event.beta
+					betaValue = event.beta;
 
 					/*
 					Gamma: represents the motion of the device around the y axis.
@@ -208,156 +208,157 @@
 					This represents a left to right motion of the device.
 				*/
 
-					gammaValue = event.gamma
+					gammaValue = event.gamma;
 
-					setNode('alpha-client', alphaValue)
-					setNode('beta-client', betaValue)
-					setNode('gamma-client', gammaValue)
+					setNode('alpha-client', alphaValue);
+					setNode('beta-client', betaValue);
+					setNode('gamma-client', gammaValue);
 
 					if (isWebsocketsConnected && alphaValue && betaValue && gammaValue) {
 						sendToServer('orientation', {
 							alpha: alphaValue,
 							beta: betaValue,
 							gamma: gammaValue,
-						})
+						});
 					}
-				}
+				};
 
-				window.addEventListener('deviceorientation', onOrientation, true)
-			}
+				window.addEventListener('deviceorientation', onOrientation, true);
+			};
 
 			/**
 			 * Handle device Acceleration
 			 */
 
 			const handleMotion = () => {
-				const onMotion = e => {
-					console.log(e.acceleration.x)
-					console.log(e.acceleration.y)
-					console.log(e.acceleration.z)
-				}
-				window.addEventListener('devicemotion', onMotion)
-			}
+				const onMotion = (e) => {
+					console.log(e.acceleration.x);
+					console.log(e.acceleration.y);
+					console.log(e.acceleration.z);
+				};
+				window.addEventListener('devicemotion', onMotion);
+			};
 
 			/**
 			 * Handle Websockets
 			 */
 
 			const handleWebsockets = () => {
-				const onNotificationMessage = message => {
-					document.querySelector('body').classList.toggle('purple')
-					setNode('notif', Array.from(message)[0])
-				}
+				const onNotificationMessage = (message) => {
+					document.querySelector('body').classList.toggle('purple');
+					setNode('notif', Array.from(message)[0]);
+				};
 
-				const getWebSocketDataFromBlobText = text => {
-					const regex = /(type)�(.*)�(message)�(.*)/gm
-					let matches
+				const getWebSocketDataFromBlobText = (text) => {
+					const regex = /(type)�(.*)�(message)�(.*)/gm;
+					let matches;
 					let data = {
 						type: '',
 						message: {},
-					}
+					};
 
 					while ((matches = regex.exec(text)) !== null) {
 						// This is necessary to avoid infinite loops with zero-width matches
 						if (matches.index === regex.lastIndex) {
-							regex.lastIndex++
+							regex.lastIndex++;
 						}
 
 						// The result can be accessed through the `matches`-variable.
 						matches.forEach((match, groupIndex) => {
 							// console.log(`Found match, group ${groupIndex}: ${match}`)
-							if (match === 'type') data.type = match
-							if (match.indexOf('{') > -1) data.message = match
-						})
+							if (match === 'type') data.type = match;
+							if (match.indexOf('{') > -1) data.message = match;
+						});
 					}
 
-					return data
-				}
+					return data;
+				};
 
-				WEBSOCKET.onopen = event => {
-					isWebsocketsConnected = true
-				}
+				WEBSOCKET.onopen = (event) => {
+					isWebsocketsConnected = true;
+				};
 
-				WEBSOCKET.onmessage = event => {
-					let data
-					let message
+				WEBSOCKET.onmessage = (event) => {
+					let data;
+					let message;
 
 					if (event.data instanceof Blob) {
-						event.data.text().then(text => {
-							data = getWebSocketDataFromBlobText(text)
-							message = JSON.parse(data.message)
-							onNotificationMessage(message)
-						})
+						event.data.text().then((text) => {
+							console.log(data, message);
+							data = getWebSocketDataFromBlobText(text);
+							message = JSON.parse(data.message);
+							onNotificationMessage(message);
+						});
 					} else {
-						data = JSON.parse(event.data)
-						message = JSON.parse(data.message)
+						data = JSON.parse(event.data);
+						message = JSON.parse(data.message);
 
 						switch (data.type) {
 							case 'time':
-								if (DEBUG_TIME) setNode('time-server', message.time)
-								break
+								if (DEBUG_TIME) setNode('time-server', message.time);
+								break;
 							case 'orientation':
-								setNode('alpha-server', message.alpha)
-								setNode('beta-server', message.beta)
-								setNode('gamma-server', message.gamma)
-								break
+								setNode('alpha-server', message.alpha);
+								setNode('beta-server', message.beta);
+								setNode('gamma-server', message.gamma);
+								break;
 
 							default:
-								break
+								break;
 						}
 					}
-				}
-			}
+				};
+			};
 
 			/**
 			 * Initialize experience
 			 */
 
 			const init = () => {
-				console.log('init')
+				console.log('init');
 
-				handleWebsockets()
-				handleOrientation()
-				handleMotion()
+				handleWebsockets();
+				handleOrientation();
+				handleMotion();
 
-				hasExperienceStarted = true
-			}
+				hasExperienceStarted = true;
+			};
 
-			init()
+			init();
 
 			/**
 			 * Handle permissions
 			 */
 
 			const handlePermissions = () => {
-				let granted = { gyro: false, accel: false }
+				let granted = { gyro: false, accel: false };
 
 				navigator.permissions.query({ name: 'gyroscope' }).then(function (result) {
 					if (result.state == 'granted') {
-						console.log('granted gyro')
-						granted.gyro = true
+						console.log('granted gyro');
+						granted.gyro = true;
 					} else if (result.state == 'prompt') {
-						console.log('asking gyro')
+						console.log('asking gyro');
 					}
 					// Don't do anything if the permission was denied.
-				})
+				});
 
 				navigator.permissions.query({ name: 'accelerometer' }).then(function (result) {
 					if (result.state == 'granted') {
-						console.log('granted accel')
-						granted.accel = true
+						console.log('granted accel');
+						granted.accel = true;
 					} else if (result.state == 'prompt') {
-						console.log('asking accel')
+						console.log('asking accel');
 					}
 					// Don't do anything if the permission was denied.
-				})
+				});
 
 				setInterval(() => {
 					if (granted.gyro && granted.accel && !hasExperienceStarted) {
-						init()
+						init();
 					}
-				}, 100)
-			}
+				}, 100);
+			};
 
 			// handlePermissions()
 
