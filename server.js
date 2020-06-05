@@ -61,6 +61,10 @@ function getClient (device, code) {
 	return usersDB[device].find(user=>user.accessCode === code)
 }
 
+function getClients (device, code) {
+	return usersDB[device].filter(user=>user.accessCode === code)
+}
+
 let usersDB = { mobile: [], desktop: [] };
 let consoleDataMobile;
 let consoleDataDesktop;
@@ -79,8 +83,10 @@ wss.on('connection', (ws) => {
 				if (typeof data === 'object') {
 					//get access code
 					accessCode = getWebSocketDataFrom(data.toString('utf8')).accessCode;
-					//store 
-					if(!usersDB.desktop.find(user=>user.ws && user.ws.uuid === ws.uuid)){
+					//store if new connection
+					if(!usersDB.desktop.find(user=>user.ws.uuid === ws.uuid)){
+						console.log('storing another desktop user');
+						// console.log(ws.uuid)
 						usersDB.desktop.push({
 							accessCode: accessCode,
 							connected: false,
@@ -88,19 +94,25 @@ wss.on('connection', (ws) => {
 						});
 					}
 					//find access codes on mobile
-					const matchingClient = getClient('mobile', accessCode);
-					//send
-					if(matchingClient){
-						matchingClient.connected = true;
-						matchingClient.ws.send(data)
-					}
+					const matchingClients = getClients('mobile', accessCode);
+					
+					matchingClients.forEach(client=>{
+						//send
+						if(client){
+							client.connected = true;
+							client.ws.send(data)
+							console.log(data.toString('utf-8'))
+						}
+					})
+
 				}
 				//Vue app sends a JSON string
 				else if (typeof data === 'string') {
 					//get access code
 					accessCode = JSON.parse(data).id;
-					//store
-					if(!usersDB.mobile.find(user=>user.ws && user.ws.uuid === ws.uuid)){
+					//store if new connection
+					if(!usersDB.mobile.find(user=>user.ws.uuid === ws.uuid)){
+						console.log('storing another mobile user');
 						usersDB.mobile.push({
 							accessCode: accessCode,
 							connected: false,
@@ -108,12 +120,16 @@ wss.on('connection', (ws) => {
 						});
 					}
 					//find access codes on desktop
-					const matchingClient = getClient('desktop', accessCode);
-					//send
-					if(matchingClient){
-						matchingClient.connected = true;
-						matchingClient.ws.send(data)
-					}
+					const matchingClients = getClients('desktop', accessCode);
+
+					matchingClients.forEach(client=>{
+						//send
+						if(client){
+							client.connected = true;
+							client.ws.send(data)
+							// console.log(data.toString('utf-8'))
+						}
+					})
 				}
 			}
 		});
@@ -121,10 +137,10 @@ wss.on('connection', (ws) => {
 	ws.on('close', () => console.log('Client disconnected'));
 });
 
-setInterval(() => {
-	console.log(usersDB.mobile, usersDB.desktop)
-	console.log(consoleDataDesktop, consoleDataMobile)
-}, 3500);
+// setInterval(() => {
+// 	console.log(usersDB.mobile, usersDB.desktop)
+// 	console.log(consoleDataDesktop, consoleDataMobile)
+// }, 3500);
 
 // if (debug)
 // 	setInterval(() => {
