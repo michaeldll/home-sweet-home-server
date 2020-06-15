@@ -66,81 +66,88 @@ function getClients (device, code) {
 }
 
 let usersDB = { mobile: [], desktop: [] };
-let consoleDataMobile;
-let consoleDataDesktop;
-
+let debug = {
+	data: {
+		mobile: "",
+		desktop: ""
+	}
+};
+//wss://home-sweet-home--ws.herokuapp.com/
 wss.on('connection', (ws) => {
 	console.log('Client connected');
 	ws.uuid = v4();
 	ws.on('message', function incoming(data) {
-		if (typeof data === 'string') { consoleDataMobile = data; }
-		else if (typeof data === 'object') { consoleDataDesktop = data.toString('utf8'); }
+		if (typeof data === 'string') { debug.data.mobile = data; }
+		else if (typeof data === 'object') { debug.data.desktop = data.toString('utf8'); }
 		wss.clients.forEach(function each(client) {
 			//only send if two different clients connected
 			if (client !== ws) {
-				let accessCode;
-				//Unity sends a buffer in binary
-				if (typeof data === 'object') {
-					//get access code
-					accessCode = getWebSocketDataFrom(data.toString('utf8')).accessCode;
-					//store if new connection
-					if(!usersDB.desktop.find(user=>user.ws.uuid === ws.uuid)){
-						console.log('storing another desktop user');
-						// console.log(ws.uuid)
-						usersDB.desktop.push({
-							accessCode: accessCode,
-							connected: false,
-							ws: ws
-						});
-					}
-					//find access codes on mobile
-					const matchingClients = getClients('mobile', accessCode);
+				client.send(data)
+				// let accessCode;
+				// //Unity sends a buffer in binary
+				// if (typeof data === 'object') {
+				// 	//get access code
+				// 	accessCode = getWebSocketDataFrom(data.toString('utf8')).accessCode;
+				// 	//store if new connection
+				// 	if(!usersDB.desktop.find(user=>user.ws.uuid === ws.uuid)){
+				// 		console.log('storing another desktop user');
+				// 		// console.log(ws.uuid)
+				// 		usersDB.desktop.push({
+				// 			accessCode: accessCode,
+				// 			connected: false,
+				// 			ws: ws
+				// 		});
+				// 	}
+				// 	//find access codes on mobile
+				// 	const matchingClients = getClients('mobile', accessCode);
 					
-					matchingClients.forEach(client=>{
-						//send
-						if(client){
-							client.connected = true;
-							client.ws.send(data)
-							console.log(data.toString('utf-8'))
-						}
-					})
+				// 	matchingClients.forEach(client=>{
+				// 		//send
+				// 		if(client){
+				// 			client.connected = true;
+				// 			client.ws.send(data)
+				// 			console.log(data.toString('utf-8'))
+				// 		}
+				// 	})
 
-				}
-				//Vue app sends a JSON string
-				else if (typeof data === 'string') {
-					//get access code
-					accessCode = JSON.parse(data).id;
-					//store if new connection
-					if(!usersDB.mobile.find(user=>user.ws.uuid === ws.uuid)){
-						console.log('storing another mobile user');
-						usersDB.mobile.push({
-							accessCode: accessCode,
-							connected: false,
-							ws: ws
-						});
-					}
-					//find access codes on desktop
-					const matchingClients = getClients('desktop', accessCode);
+				// }
+				// //Vue app sends a JSON string
+				// else if (typeof data === 'string') {
+				// 	//get access code
+				// 	accessCode = JSON.parse(data).id;
+				// 	//store if new connection
+				// 	if(!usersDB.mobile.find(user=>user.ws.uuid === ws.uuid)){
+				// 		console.log('storing another mobile user');
+				// 		usersDB.mobile.push({
+				// 			accessCode: accessCode,
+				// 			connected: false,
+				// 			ws: ws
+				// 		});
+				// 	}
+				// 	//find access codes on desktop
+				// 	const matchingClients = getClients('desktop', accessCode);
 
-					matchingClients.forEach(client=>{
-						//send
-						if(client){
-							client.connected = true;
-							client.ws.send(data)
-							// console.log(data.toString('utf-8'))
-						}
-					})
-				}
+				// 	matchingClients.forEach(client=>{
+				// 		//send
+				// 		if(client){
+				// 			client.connected = true;
+				// 			client.ws.send(data)
+				// 			// console.log(data.toString('utf-8'))
+				// 		}
+				// 	})
+				// }
 			}
 		});
 	});
 	ws.on('close', () => console.log('Client disconnected'));
 });
 
-// setInterval(() => {
-// 	console.log(usersDB.mobile, usersDB.desktop)
-// 	console.log(consoleDataDesktop, consoleDataMobile)
-// }, 3500);
+if(debug){
+	setInterval(() => {
+		// console.log(debug.data.desktop, debug.data.mobile)
+	}, 5000);
+}
+
 
 // if (debug)
 // 	setInterval(() => {
